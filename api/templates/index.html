@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+{% load static %}
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Report Template</title>
+    <style>
+      body {
+        font-family: "Arial", sans-serif;
+        margin: 20px;
+      }
+
+      header {
+        text-align: center;
+        padding: 10px;
+        background-color: #f2f2f2;
+      }
+
+      h1 {
+        color: #333;
+      }
+
+      section {
+        margin-top: 20px;
+      }
+
+      table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 10px;
+      }
+
+      th,
+      td {
+        border: 1px solid #ddd;
+        padding: 8px;
+        text-align: left;
+      }
+
+      th {
+        background-color: #f2f2f2;
+      }
+
+      .image-section {
+        margin-top: 20px;
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(640px, 1fr));
+        gap: 5px;
+      }
+
+      .image-card {
+        text-align: center;
+      }
+
+      .image-card img {
+        max-width: 100%;
+        height: auto;
+      }
+
+      footer {
+        margin-top: 20px;
+        text-align: center;
+        font-size: 12px;
+        color: #666;
+      }
+    </style>
+  </head>
+
+  <body>
+    <header>
+      <img
+        src="https://dubotech.com/assets/img/logo-white.png"
+        alt="logo"
+        width="120"
+        height="60"
+      />
+      <p>Inspection Report</p>
+    </header>
+
+    <section>
+      <h2>Section 1: Overview</h2>
+      <table>
+        <thead>
+          <tr>
+            <th>Date</th>
+            <th>Start</th>
+            <th>End</th>
+            <th>Duration</th>
+            <th>Max. depth</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>{{current_datetime_string}}</td>
+            <td>{{start_datetime_string}}</td>
+            <td>{{end_datetime_string}}</td>
+            <td>{{duration_minutes}} min</td>
+            <td>{{depth}} m</td>
+          </tr>
+          <!-- Add more rows as needed -->
+        </tbody>
+      </table>
+      <table>
+        <thead>
+          <tr>
+            <th>Location</th>
+            <th>Map</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>
+              <strong>Matarbari Port</strong> <br />GPS: 21°41′29″N 91°51′32″E
+              21.6914°N 91.8590°E
+            </td>
+            <td><img src="{{map}}" alt="Image 2" /></td>
+          </tr>
+          <!-- Add more rows as needed -->
+        </tbody>
+      </table>
+    </section>
+
+    <section>
+      <h2>Section 2: Inspection Pictures</h2>
+      <div class="image-section">
+        <div class="image-card">
+          <img src="{{img1}}" alt="Image 1" />
+        </div>
+        <div class="image-card">
+          <img src="{{img2}}" alt="Image 1" />
+        </div>
+        <div class="image-card">
+          <img src="{{img3}}" alt="Image 1" />
+        </div>
+        <div class="image-card">
+          <img src="{{img4}}" alt="Image 1" />
+        </div>
+        <div class="image-card">
+          <img src="{{img5}}" alt="Image 1" />
+        </div>
+        <div class="image-card">
+          <img src="{{img6}}" alt="Image 1" />
+        </div>
+
+        <!-- Add more image cards as needed -->
+      </div>
+    </section>
+
+    <footer>
+      <p>Generated on: {{generate_datetime_string}}</p>
+    </footer>
+  </body>
+</html>

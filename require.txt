@@ -1,8 +1,0 @@
-pillow==8.3.2
-django==4.2.10
-pymysql==0.10.1
-pandas==1.1.5
-djangorestframework==3.12.4
-markdown==3.2.1
-django-cors-headers==3.7.0
-requests

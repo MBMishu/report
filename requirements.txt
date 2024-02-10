@@ -5,9 +5,9 @@ djangorestframework==3.12.4
 markdown==3.2.1
 django-cors-headers==3.7.0
 requests
-torch
-torchvision
-ultralytics==8.0.20
+#torch
+# torchvision
+# ultralytics==8.0.20
 reportlab
 xhtml2pdf
 imageio

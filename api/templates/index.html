@@ -29,7 +29,6 @@
       table {
         width: 100%;
         border-collapse: collapse;
-        margin-top: 10px;
       }
 
       th,
@@ -46,7 +45,7 @@
       .image-section {
         margin-top: 20px;
         display: grid;
-        grid-template-columns: repeat(auto-fill, minmax(640px, 1fr));
+        grid-template-columns: repeat(auto-fill, minmax(420px, 1fr));
         gap: 5px;
       }
 
@@ -88,7 +87,6 @@
             <th>Start</th>
             <th>End</th>
             <th>Duration</th>
-            <th>Max. depth</th>
           </tr>
         </thead>
         <tbody>
@@ -97,7 +95,26 @@
             <td>{{start_datetime_string}}</td>
             <td>{{end_datetime_string}}</td>
             <td>{{duration_minutes}} min</td>
+          </tr>
+        </tbody>
+      </table>
+      <table>
+        <thead>
+          <tr>
+            <th>Max. depth</th>
+            <th>Compass</th>
+            <th>Turbidity</th>
+            <th>Currents</th>
+            <th>Position</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
             <td>{{depth}} m</td>
+            <td>30°</td>
+            <td>25 NTU</td>
+            <td>1 knot</td>
+            <td>(30,42,76)</td>
           </tr>
           <!-- Add more rows as needed -->
         </tbody>
@@ -142,6 +159,9 @@
         </div>
         <div class="image-card">
           <img src="{{img6}}" alt="Image 1" />
+        </div>
+        <div class="image-card">
+          <img src="{{img7}}" alt="Image 1" />
         </div>
 
         <!-- Add more image cards as needed -->

@@ -20,8 +20,8 @@ from django.conf import settings
 import numpy as np
 import shutil
 
-from reportlab.lib.pagesizes import letter
-from reportlab.pdfgen import canvas
+# from reportlab.lib.pagesizes import letter
+# from reportlab.pdfgen import canvas
 
 
 
@@ -30,7 +30,7 @@ from xhtml2pdf import pisa
 
 
 from django.core.files.base import ContentFile
-from django.core.files.storage import default_storage
+# from django.core.files.storage import default_storage
 
 import datetime
 from django.shortcuts import get_object_or_404
@@ -73,9 +73,11 @@ def videoUpload(request):
 
     if video_serializer.is_valid():
         video = video_serializer.save()
+        video.save_()
+        print(video.file.path)
         
-        model = YOLO(os.path.join(settings.BASE_DIR, "static/models/best.pt"))
-        
+        model = YOLO(os.path.join(settings.BASE_DIR, "static","models","best.pt"))
+
         video_path = video.file.path
         
         output_folder = os.path.join(settings.MEDIA_ROOT, 'frames')
@@ -86,19 +88,22 @@ def videoUpload(request):
         frame_count = int(cap.get(cv2.CAP_PROP_FRAME_COUNT))
         
         if not os.path.exists(output_folder):
-            os.mkdir(output_folder)
+            os.makedirs (output_folder)
             
         if not os.path.exists(output_detected_frames):
-            os.mkdir(output_detected_frames)
+            os.makedirs (output_detected_frames)
         
         count = 0
+        save_gif = False
         
         for frame_index in range(frame_count):
-            success, image = cap.read()
-            if not success:
-                break
-            
-            if frame_index % 100 == 0:
+        
+            if frame_index % 10 == 0:
+                
+                success, image = cap.read()
+                if not success:
+                    break
+                
                 # capture frame from video
                 frame_filename = f"{video.id}_frame_{count}.jpg"
                 frame_path = os.path.join(output_folder, frame_filename)
@@ -108,37 +113,58 @@ def videoUpload(request):
                 pil_image = Image.open(frame_path)
                 results_list = model.predict(source=[pil_image], save=True)
                 
-                #  get recentpredict folder                
-                folder_path = "runs/detect"
-                recent_subfolder = get_recent_subfolder(folder_path)
-                img_path = f"{recent_subfolder}/image0.jpg"
-                
-                # copy to media 
-                unique_id = str(uuid.uuid4())
-                output_img_path = os.path.join(output_detected_frames, f"frame_{unique_id}_{video.id}.jpg")
-                shutil.copy(img_path, output_img_path)
-                
-                        # Read the content of the image file
-                with open(output_img_path, 'rb') as image_file:
-                    image_content = image_file.read()
+                detect_hyse = False
+                if results_list:
+                    # Assuming results_list contains a single element
+                    detection_boxes = results_list[0].boxes
+                    
+                    if detection_boxes.shape[0] > 0:
+                        detect_hyse = True
+                        save_gif = True
+                    else:
+                        detect_hyse = False
 
-                
-                # Save the content to DetectedFrame model
-                detected_frame = DetectedFrame(video=video, frame_number=unique_id)
-                detected_frame.file.save(f"frame_{unique_id}_{video.id}.jpg", ContentFile(image_content))
-                detected_frame.save()
+                if detect_hyse:
+                    #  get recentpredict folder                
+                    folder_path = "runs/detect"
+                    recent_subfolder = get_recent_subfolder(folder_path)
+                    img_path = f"{recent_subfolder}/image0.jpg"
+                    
+                    # copy to media 
+                    unique_id = str(uuid.uuid4())
+                    output_img_path = os.path.join(output_detected_frames, f"frame_{unique_id}_{video.id}.jpg")
+                    shutil.copy(img_path, output_img_path)
+                    
+                            # Read the content of the image file
+                    with open(output_img_path, 'rb') as image_file:
+                        image_content = image_file.read()
+
+                    
+                    # Save the content to DetectedFrame model
+                    detected_frame = DetectedFrame(video=video, frame_number=unique_id)
+                    detected_frame.file.save(f"frame_{unique_id}_{video.id}.jpg", ContentFile(image_content))
+                    detected_frame.save()
+                   
                 
                 count += 1
-            
-        video.create_detected_gif()
-        video.create_enhanced_gif()
-        video.save_video_as_gif()
-    
+                
+        
         cap.release()
+      
         
-        generate_pdf_for_video(video.id)
+        video.save_video_as_gif()
+        video.create_enhanced_gif()
+       
+
+        if save_gif:
+            print("generate report")
+            video.create_detected_gif()
+            generate_pdf_for_video(video.id)
+            return Response({"message": "Video uploaded and objects detected successfully","id":video.id}, status=status.HTTP_201_CREATED)
         
-        return Response({"message": "Video uploaded and objects detected successfully","id":video.id}, status=status.HTTP_201_CREATED)
+        else:
+            return Response({"message": "Video uploaded successfully but no object detected","id":video.id}, status=status.HTTP_201_CREATED)
+    
     else:
         return Response("Data did not added")
 
@@ -194,6 +220,7 @@ def generate_pdf_for_video(video_id):
     img4 = os.path.join(settings.BASE_DIR,detected_frames[3].file.path)
     img5 = os.path.join(settings.BASE_DIR,detected_frames[4].file.path)
     img6 = os.path.join(settings.BASE_DIR,detected_frames[5].file.path)
+
     
     current_datetime = datetime.datetime.now()
     
@@ -221,6 +248,7 @@ def generate_pdf_for_video(video_id):
             'img4': img4,
             'img5': img5,
             'img6': img6,
+         
             'current_datetime_string':current_datetime_,
             'start_datetime_string':current_datetime_string,
             'end_datetime_string':end_datetime_string,
@@ -231,7 +259,7 @@ def generate_pdf_for_video(video_id):
     
     output_pdf_path = os.path.join(settings.MEDIA_ROOT, 'pdf', f'{video_id}_temp.pdf')
     with open(output_pdf_path, 'wb') as pdf_file:
-        pdf_file.write(render_to_pdf('index.html', context).content)
+        pdf_file.write(render_to_pdf('pdf.html', context).content)
         
     with open(output_pdf_path, 'rb') as pdf_file:
         pdf_content = pdf_file.read()
@@ -243,7 +271,7 @@ def generate_pdf_for_video(video_id):
     return detected_object_pdf
 
 def home(request):
-    detected_frames = DetectedFrame.objects.filter(video_id=74)[:6]
+    detected_frames = DetectedFrame.objects.filter(video_id=151)[:7]
     
     map_ = os.path.join(settings.MEDIA_ROOT, 'map.png')
     
@@ -253,6 +281,7 @@ def home(request):
     img4 = os.path.join(settings.BASE_DIR,detected_frames[3].file.path)
     img5 = os.path.join(settings.BASE_DIR,detected_frames[4].file.path)
     img6 = os.path.join(settings.BASE_DIR,detected_frames[5].file.path)
+    img7 = os.path.join(settings.BASE_DIR,detected_frames[6].file.path)
     
     
     context = {'detected_frames': detected_frames,
@@ -262,6 +291,7 @@ def home(request):
             'img3': img3,
             'img4': img4,
             'img5': img5,
+            'img7': img7,
             'img6': img6,'current_date': datetime.datetime.now().strftime("%Y-%m-%d"),}
-    return render(request, 'index.html',context)
+    return render(request, 'pdf.html',context)
 

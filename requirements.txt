@@ -1,13 +1,13 @@
-pillow==8.3.2
+# pillow==8.3.2
 django==4.2.10
 pandas==1.1.5
 djangorestframework==3.12.4
 markdown==3.2.1
 django-cors-headers==3.7.0
-requests
-#torch
-# torchvision
-# ultralytics==8.0.20
-reportlab
-xhtml2pdf
-imageio
+requests==2.31.0
+torch==2.2.0
+torchvision==0.17.0
+ultralytics==8.0.20
+reportlab==4.0.9
+xhtml2pdf==0.2.15
+imageio==2.33.1

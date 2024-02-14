@@ -98,7 +98,7 @@ def videoUpload(request):
         
         for frame_index in range(frame_count):
         
-            if frame_index % 30 == 0:
+            if frame_index % 50 == 0:
                 
                 success, image = cap.read()
                 if not success:
